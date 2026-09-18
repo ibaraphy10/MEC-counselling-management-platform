@@ -1,0 +1,114 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  CORE
+  COUNSELLOR
+}
+
+enum SessionStatus {
+  REQUESTED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
+}
+
+enum SessionMode {
+  IN_PERSON
+  ONLINE
+}
+
+enum RoomStatus {
+  AVAILABLE
+  OCCUPIED
+  RESERVED
+  MAINTENANCE
+}
+
+model User {
+  id                   String              @id @default(cuid())
+  googleId             String?             @unique
+  name                 String
+  email                String              @unique
+  role                 Role                @default(STUDENT)
+  department           String?             // e.g. "Computer Science", "Electronics"
+  classYear            String?             // e.g. "1st Year", "2nd Year", "3rd Year", "4th Year"
+  batch                String?             // e.g. "2023-2027" or division "CS-A"
+  phone                String?
+  avatarUrl            String?
+  
+  // Relations
+  sessionsAsStudent    Session[]           @relation("StudentSessions")
+  sessionsAsCounsellor Session[]           @relation("CounsellorSessions")
+  statusHistoryChanges RoomStatusHistory[] @relation("UserStatusUpdates")
+
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+}
+
+model Room {
+  id            String              @id @default(cuid())
+  name          String              @unique // e.g. "Fortitude Cabin 1", "Conference Room"
+  code          String?             @unique // e.g. "FC-1"
+  location      String?             // e.g. "Main Block 2nd Floor"
+  capacity      Int                 @default(2)
+  currentStatus RoomStatus          @default(AVAILABLE)
+
+  // Relations
+  sessions      Session[]
+  statusHistory RoomStatusHistory[]
+
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+}
+
+model RoomStatusHistory {
+  id          String      @id @default(cuid())
+  roomId      String
+  room        Room        @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  status      RoomStatus
+  notes       String?
+  changedById String?
+  changedBy   User?       @relation("UserStatusUpdates", fields: [changedById], references: [id], onDelete: SetNull)
+  startedAt   DateTime    @default(now())
+  endedAt     DateTime?
+  
+  createdAt   DateTime    @default(now())
+}
+
+model Session {
+  id              String        @id @default(cuid())
+  
+  studentId       String
+  student         User          @relation("StudentSessions", fields: [studentId], references: [id], onDelete: Cascade)
+  
+  counsellorId    String?
+  counsellor      User?         @relation("CounsellorSessions", fields: [counsellorId], references: [id], onDelete: SetNull)
+  
+  roomId          String?
+  room            Room?         @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  
+  status          SessionStatus @default(REQUESTED)
+  mode            SessionMode   @default(IN_PERSON)
+  sessionType     String?       // e.g. "Academic Stress", "Personal", "Career Guidance"
+  reason          String?       // Booking description/reason provided by student
+  counsellorNotes String?       // Confidential post-session notes
+  meetUrl         String?       // Video link if online
+
+  scheduledAt     DateTime
+  durationMinutes Int           @default(45)
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
