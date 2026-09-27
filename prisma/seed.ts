@@ -13,30 +13,45 @@ async function main() {
   // 1. Dedicated Single Counselling Room
   const counsellingRoom = await prisma.room.create({
     data: {
-      name: "Fortitude Counselling Room",
-      code: "FCR-01",
-      location: "Main Block, 2nd Floor, Room 204",
-      capacity: 3,
+      name: "Sick Room, near Library",
+      location: "Main Block, Ground Floor, near Library",
+      capacity: 1,
       currentStatus: "AVAILABLE",
     },
   });
 
   // 2. The College's Dedicated Single Counsellor
   const counsellor = await prisma.user.upsert({
-    where: { email: "counsellor@mec.ac.in" },
+    where: { email: "counsellor_email@mec.ac.in" },
     update: {
-      name: "Dr. Latha Menon",
+      name: "Babu Mathews",
       role: "COUNSELLOR",
+      designation: "[Designation/Role]",
       department: "Student Well-Being & Guidance",
       phone: "+91 98765 43210",
+      linkedin: "[LinkedIn Profile URL]",
     },
     create: {
-      name: "Dr. Latha Menon",
-      email: "counsellor@mec.ac.in",
+      name: "Babu Mathews",
+      email: "counsellor_email@mec.ac.in",
       role: "COUNSELLOR",
+      designation: "[Designation/Role]",
       department: "Student Well-Being & Guidance",
       phone: "+91 98765 43210",
+      linkedin: "[LinkedIn Profile URL]",
     },
+  });
+
+  // 2.5 Dynamic Schedule Configuration
+  await prisma.scheduleConfig.deleteMany(); // Reset just in case
+  await prisma.scheduleConfig.create({
+    data: {
+      startTime: "11:00",
+      endTime: "17:00",
+      slotDurationMin: 45,
+      lunchStartTime: "13:00",
+      lunchDurationMin: 30,
+    }
   });
 
   // 3. Core Committee Student Coordinator

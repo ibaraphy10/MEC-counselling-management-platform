@@ -43,9 +43,11 @@ model User {
   email                String              @unique
   role                 Role                @default(STUDENT)
   department           String?             // e.g. "Computer Science", "Electronics"
+  designation          String?             // e.g. "Student Well-Being & Guidance"
   classYear            String?             // e.g. "1st Year", "2nd Year", "3rd Year", "4th Year"
   batch                String?             // e.g. "2023-2027" or division "CS-A"
   phone                String?
+  linkedin             String?
   avatarUrl            String?
   
   // Relations
@@ -60,7 +62,6 @@ model User {
 model Room {
   id            String              @id @default(cuid())
   name          String              @unique // e.g. "Fortitude Cabin 1", "Conference Room"
-  code          String?             @unique // e.g. "FC-1"
   location      String?             // e.g. "Main Block 2nd Floor"
   capacity      Int                 @default(2)
   currentStatus RoomStatus          @default(AVAILABLE)
@@ -111,4 +112,14 @@ model Session {
 
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+}
+
+model ScheduleConfig {
+  id               String   @id @default(cuid())
+  startTime        String   @default("11:00")
+  endTime          String   @default("17:00")
+  slotDurationMin  Int      @default(45)
+  lunchStartTime   String   @default("13:00")
+  lunchDurationMin Int      @default(30)
+  updatedAt        DateTime @updatedAt
 }
