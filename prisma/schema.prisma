@@ -30,10 +30,10 @@ enum SessionMode {
 }
 
 enum RoomStatus {
-  AVAILABLE
-  OCCUPIED
-  RESERVED
-  MAINTENANCE
+  VACANT_OPEN
+  ACTIVE_BOOKED
+  BREAK_TIME
+  ENGAGED
 }
 
 model User {
@@ -64,7 +64,7 @@ model Room {
   name          String              @unique // e.g. "Fortitude Cabin 1", "Conference Room"
   location      String?             // e.g. "Main Block 2nd Floor"
   capacity      Int                 @default(2)
-  currentStatus RoomStatus          @default(AVAILABLE)
+  currentStatus RoomStatus          @default(VACANT_OPEN)
 
   // Relations
   sessions      Session[]

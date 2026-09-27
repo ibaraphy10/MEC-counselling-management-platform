@@ -16,7 +16,7 @@ async function main() {
       name: "Sick Room, near Library",
       location: "Main Block, Ground Floor, near Library",
       capacity: 1,
-      currentStatus: "AVAILABLE",
+      currentStatus: "VACANT_OPEN",
     },
   });
 
@@ -98,7 +98,7 @@ async function main() {
   await prisma.roomStatusHistory.create({
     data: {
       roomId: counsellingRoom.id,
-      status: "AVAILABLE",
+      status: "VACANT_OPEN",
       notes: "Room verified and sanitized for student sessions.",
       changedById: coreMember.id,
     },
